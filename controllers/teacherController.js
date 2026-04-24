@@ -10,9 +10,9 @@ const fs = require('fs');
 // @access  Private (Teacher only)
 exports.createSession = async (req, res) => {
   try {
-    const { subject, date, startTime, endTime, duration, location } = req.body;
+    const { subject, date, startTime, endTime, duration } = req.body;
 
-    if (!subject || !date || !startTime || !endTime || !location) {
+    if (!subject || !date || !startTime || !endTime) {
       return res.status(400).json({
         success: false,
         message: 'Please provide all required fields',
@@ -26,13 +26,54 @@ exports.createSession = async (req, res) => {
       startTime: new Date(startTime),
       endTime: new Date(endTime),
       duration: duration || 30,
-      location: {
-        lat: location.lat,
-        lng: location.lng,
-      },
     });
 
     res.status(201).json({
+      success: true,
+      data: session,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// @desc    Update session location
+// @route   PATCH /api/teacher/sessions/:sessionId/location
+// @access  Private (Teacher only)
+exports.updateSessionLocation = async (req, res) => {
+  try {
+    const { lat, lng } = req.body;
+
+    if (typeof lat !== 'number' || typeof lng !== 'number') {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide valid latitude and longitude',
+      });
+    }
+
+    const session = await Session.findById(req.params.sessionId);
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: 'Session not found',
+      });
+    }
+
+    if (session.teacherId.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to update this session',
+      });
+    }
+
+    session.location = { lat, lng };
+    await session.save();
+
+    res.status(200).json({
       success: true,
       data: session,
     });

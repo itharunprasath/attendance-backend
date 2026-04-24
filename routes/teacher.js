@@ -5,6 +5,7 @@ const {
   getSessions,
   getSession,
   updateSession,
+  updateSessionLocation,
   deleteSession,
   generateQR,
   getSessionAttendance,
@@ -22,6 +23,7 @@ router.use(checkRole('teacher'));
 
 router.route('/sessions').get(getSessions).post(createSession);
 router.route('/sessions/:sessionId').get(getSession).put(updateSession).delete(deleteSession);
+router.patch('/sessions/:sessionId/location', updateSessionLocation);
 router.post('/sessions/:sessionId/generate-qr', generateQR);
 router.get('/sessions/:sessionId/attendance', getSessionAttendance);
 router.get('/attendance/reports', getAttendanceReports);
