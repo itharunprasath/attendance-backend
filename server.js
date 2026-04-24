@@ -56,6 +56,9 @@ app.use('/api/student', require('./routes/student'));
 // ======================
 // ✅ HEALTH CHECK
 // ======================
+app.get('/', (req, res) => {
+  res.send('Backend is working');
+});
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     success: true,
